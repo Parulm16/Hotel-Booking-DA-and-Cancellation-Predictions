@@ -1,0 +1,92 @@
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
+import matplotlib.pyplot as plt
+import statsmodels.formula.api as smf
+
+from sklearn.metrics import accuracy_score, roc_auc_score, roc_curve, confusion_matrix, auc
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.preprocessing import LabelEncoder, StandardScaler 
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+
+hotel = pd.read_csv("/kaggle/input/hotel-booking-demand/hotel_bookings.csv")
+hotel.head()
+
+# checking for missing values
+hotel.isnull().sum()
+
+# handling Missing values
+hotel['children'].fillna(0,inplace=True)
+hotel['country'].fillna('PRT',inplace=True)
+hotel.drop(['agent','company'],axis=1,inplace=True)
+
+#How many Bookings were Cancelled at the Hotel?
+sns.set(style = "darkgrid")
+plt.title("Is Booking Canceled or not", fontdict = {'fontsize': 20})
+ax = sns.countplot(x = "is_canceled", data = hotel)
+
+#How many Bookings were Cancelled by Hotel Type?
+sns.set(style = "darkgrid")
+plt.title("Is Canceled or not by Hotel Type", fontdict = {'fontsize': 20})
+ax = sns.countplot(x = "hotel", hue = 'is_canceled', data = hotel)
+
+#Which Month is the Most Occupied with Bookings at the Hotel?
+month_sorted = ['January','February','March','April','May','June','July','August','September','October','November','December']
+plt.figure(figsize=(14,6))
+plt.title("what times of the year do we have the highest bookings", fontdict = {'fontsize': 20})
+sns.countplot(hotel['arrival_date_month'], palette='tab10', order = month_sorted)
+plt.xticks(rotation = 90)
+plt.show()
+
+#Which Month Has Highest Number of Cancellations?
+month_sorted = ['January','February','March','April','May','June','July','August','September','October','November','December']
+plt.figure(figsize = (13,10))
+sns.set(style="dark")
+plt.title("No. of Cancellation -- Monthly ", fontdict={'fontsize': 20})
+sns.barplot(x = 'arrival_date_month', y = 'is_canceled', data = hotel, order = month_sorted);
+
+# Total Number of Bookings by Market Segment
+plt.figure(figsize = (13,10))
+sns.set(style = "darkgrid")
+plt.title("Segments wise booking", fontdict = {'fontsize':20})
+ax = sns.countplot(x = "market_segment", data = hotel)
+
+# Total Number of Bookings cancellation by Market Segment
+plt.figure(figsize = (13,10))
+sns.set(style = "darkgrid")
+plt.title("Booking Cancellation by Segments", fontdict = {'fontsize':20})
+ax = sns.countplot(x = "market_segment", hue = 'is_canceled', data = hotel)
+
+# Arrival Date Year vs. Lead Time By Booking Cancellation Status
+sns.set(style = "darkgrid")
+plt.title("Arrival Date Year vs Lead Time By Booking Cancellation Status", fontdict = {'fontsize': 20})
+ax = sns.barplot(x = "arrival_date_year", y = "lead_time" ,hue = 'is_canceled', data = hotel)
+
+# deposit type vs cancellation status
+plt.figure(figsize=(14,6))
+plt.title("Booking Canceled or not by Deposite type", fontdict = {'fontsize': 20})
+sns.countplot(x='deposit_type',data=hotel,hue='is_canceled',palette='hls')
+plt.show()
+
+#Some subplot of remaining attributes:
+plt.figure(figsize=(16,12))
+sns.set(palette = "tab10")
+plt.subplot(221)
+sns.countplot(hotel['meal'], hue=hotel['is_canceled'])
+plt.xlabel('Meal Type')
+plt.subplot(222)
+sns.countplot(hotel['customer_type'], hue=hotel['is_canceled'])
+plt.xlabel('customer_type Type')
+plt.subplot(223)
+sns.countplot(hotel['reserved_room_type'], hue=hotel['is_canceled'])
+plt.xlabel('Reserved Room Type')
+plt.subplot(224)
+sns.countplot(hotel['reservation_status'], hue=hotel['is_canceled'])
+plt.xlabel('Reservation Status')
+plt.show()
+
+
+
